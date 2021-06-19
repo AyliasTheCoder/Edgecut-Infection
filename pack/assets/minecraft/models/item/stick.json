@@ -11,10 +11,6 @@
  {"predicate": {"custom_model_data":253}, "model": "infection:item/medkit_3"},
  {"predicate": {"custom_model_data":254}, "model": "infection:item/adrenaline_1"},
  {"predicate": {"custom_model_data":255}, "model": "infection:item/adrenaline_2"},
- {"predicate": {"custom_model_data":256}, "model": "infection:item/adrenaline_3"},
- {"predicate": {"custom_model_data":257}, "model": "infection:item/pistol"},
- {"predicate": {"custom_model_data":258}, "model": "infection:item/shotgun"},
- {"predicate": {"custom_model_data":259}, "model": "infection:item/sniper"},
- {"predicate": {"custom_model_data":260}, "model": "infection:item/bullet"}
+ {"predicate": {"custom_model_data":256}, "model": "infection:item/adrenaline_3"}
  ]
 }

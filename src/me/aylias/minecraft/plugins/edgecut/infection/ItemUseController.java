@@ -4,17 +4,13 @@ import me.aylias.minecraft.plugins.aptlib.listeners.ItemUseListener;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static me.aylias.minecraft.plugins.aptlib.ListTools.toList;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class ItemUseController {
 
     public static ItemUseListener<Main> itemUseListener;
     private static Main main;
-    static Map<String, FlashlightTimer> timerMap = new HashMap<>();
     static int flashlightId = 0;
 
     public static void init(Main main) {
@@ -22,40 +18,61 @@ public class ItemUseController {
         main.getServer().getPluginManager().registerEvents(itemUseListener, main);
         ItemUseController.main = main;
 
-        String flashlight = "Flashlight | #m | Battery: #l";
+        itemUseListener.register("Flashlight | ON", ItemUseController::flashlight, ItemUseListener.UseType.RIGHT);
+        itemUseListener.register("Flashlight | OFF", ItemUseController::flashlight, ItemUseListener.UseType.RIGHT);
 
-        for (int i = 1; i <= 100; i++) {
-            itemUseListener.register(flashlight
-                            .replace("#m", "ON")
-                            .replace("#l", i + ""),
-                    ItemUseController::flashlight, ItemUseListener.UseType.RIGHT);
+        itemUseListener.register("L1 Medkit", ItemUseController::medkitL1, ItemUseListener.UseType.RIGHT_SHRINK);
+        itemUseListener.register("L2 Medkit", ItemUseController::medkitL2, ItemUseListener.UseType.RIGHT_SHRINK);
+        itemUseListener.register("L3 Medkit", ItemUseController::medkitL3, ItemUseListener.UseType.RIGHT_SHRINK);
 
-            itemUseListener.register(flashlight
-                            .replace("#m", "OFF")
-                            .replace("#l", i + ""),
-                    ItemUseController::flashlight, ItemUseListener.UseType.RIGHT);
-        }
+        itemUseListener.register("L1 Adrenaline Shot", ItemUseController::adrenalineL1, ItemUseListener.UseType.RIGHT_SHRINK);
+        itemUseListener.register("L2 Adrenaline Shot", ItemUseController::adrenalineL2, ItemUseListener.UseType.RIGHT_SHRINK);
+        itemUseListener.register("L3 Adrenaline Shot", ItemUseController::adrenalineL3, ItemUseListener.UseType.RIGHT_SHRINK);
     }
-
-
 
     public static void flashlight(Player player, int slot) {
         ItemStack item = player.getInventory().getItem(slot);
         ItemMeta meta = item.getItemMeta();
 
         if (meta.getDisplayName().contains("OFF"))  {
-            if (!meta.hasLore()) {
-                meta.setLore(toList(flashlightId + ""));
-                timerMap.put(flashlightId + "", new FlashlightTimer(main, flashlightId + "", player));
-            }
-            timerMap.get(flashlightId + "").start();
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000000, 0));
             meta.setDisplayName(meta.getDisplayName().replace("OFF", "ON"));
         } else {
-            timerMap.get(meta.getLore().get(0)).stop();
+            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
             meta.setDisplayName(meta.getDisplayName().replace("ON", "OFF"));
         }
 
         item.setItemMeta(meta);
         player.getInventory().setItem(slot, item);
+    }
+
+    public static void medkitL1(Player player, int slot) {
+        player.setHealth(player.getHealth() + 6);
+    }
+
+    public static void medkitL2(Player player, int slot) {
+        player.setHealth(player.getHealth() + 10);
+    }
+
+    public static void medkitL3(Player player, int slot) {
+        player.setHealth(player.getHealth() + 14);
+    }
+
+    public static void adrenalineL1(Player player, int slot) {
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 60, 1));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 60*20, 1));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20, 1));
+    }
+
+    public static void adrenalineL2(Player player, int slot) {
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 60, 2));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 60*20*2, 2));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20*2, 2));
+    }
+
+    public static void adrenalineL3(Player player, int slot) {
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 60, 3));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 60*20*3, 3));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20*3, 3));
     }
 }

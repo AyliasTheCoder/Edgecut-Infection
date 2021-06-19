@@ -14,8 +14,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +31,7 @@ public class AirdropTimer extends ListeningTimer<Main> {
     int cmd = 250;
     Random random = new Random();
     public AirdropTimer(Main main, World world) {
-        super(main, 0, 20*30, "Airdrop");
+        super(main, 20*60*5, 20*60*5, "Airdrop");
         INSTANCE = this;
         this.world = world;
         helmet = new ItemStack(Material.STICK);
@@ -41,18 +39,14 @@ public class AirdropTimer extends ListeningTimer<Main> {
         helmetMeta.setCustomModelData(1000);
         helmet.setItemMeta(helmetMeta);
 
-        addPossible(Material.CARROT_ON_A_STICK, 1, 50, "Flashlight | OFF | Battery: 100");
+        addPossible(Material.CARROT_ON_A_STICK, 1, 30, "Flashlight | OFF");
         addPossible(1, 20, "L1 Medkit");
         addPossible(1, 8, "L2 Medkit");
         addPossible(1, 2, "L3 Medkit");
         addPossible(1, 7, "L1 Adrenaline Shot");
         addPossible(1, 3, "L2 Adrenaline Shot");
         addPossible(1, 1, "L3 Adrenaline Shot");
-        addPossible(1, 1, "Pistol");
-        addPossible(1, 1, "Shotgun");
-        addPossible(1, 1, "Sniper");
-        addPossible(64, 1, "Bullet");
-        //addPossible(1, 2, "Glider");
+        addPossible(Material.ELYTRA, 1, 2, "Glider");
     }
 
 

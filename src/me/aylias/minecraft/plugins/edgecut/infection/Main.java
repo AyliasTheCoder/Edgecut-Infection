@@ -36,6 +36,6 @@ public class Main extends AbstractMain {
         return toMap(toPair("start", commandHandler),
                 toPair("zombie", commandHandler),
                 toPair("reset", commandHandler),
-                toPair("stop", commandHandler));
+                toPair("staff", commandHandler));
     }
 }
