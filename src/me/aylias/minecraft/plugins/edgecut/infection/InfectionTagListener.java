@@ -10,9 +10,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scoreboard.*;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +45,7 @@ public class InfectionTagListener implements Listener {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard board = manager.getNewScoreboard();
 
-        objective = board.registerNewObjective("dummy", "counter", ChatColor.DARK_GREEN + "Edgecut" + ChatColor.DARK_RED + "Infection");
+        objective = board.registerNewObjective("dummy", "counter", ChatColor.DARK_GREEN + "Zombie" + ChatColor.DARK_RED + "Infection");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         updateScoreboard();
         main.getServer().getOnlinePlayers().forEach(p -> p.setScoreboard(board));
@@ -54,11 +59,14 @@ public class InfectionTagListener implements Listener {
 
         scores.clear();
         scores.add(ChatColor.GREEN + "Humans: " + ChatColor.BLUE + players.getGroup("player").size());
+        //scores.add("");
         scores.add(ChatColor.RED + "Infected: " + ChatColor.BLUE + players.getGroup("zombie").size());
-        scores.add("");
-        scores.add("");
-        scores.add(ChatColor.GOLD + "Partnered with" + ChatColor.BLUE + " Bisect Hosting");
-        scores.add(ChatColor.AQUA + "Twitter:" + ChatColor.DARK_BLUE + " @EdgecutEvents");
+        scores.add(" ");
+        scores.add("  ");
+        scores.add(ChatColor.GOLD + "Sponsored:");
+        scores.add(ChatColor.BLUE + "" + ChatColor.BOLD + "  BisectHosting");
+        scores.add(ChatColor.AQUA + "Twitter:");
+        scores.add(ChatColor.BLUE + "" + ChatColor.BOLD +  "  @EdgecutEvents");
 
         Collections.reverse(scores);
 
@@ -74,25 +82,36 @@ public class InfectionTagListener implements Listener {
     }
 
     public void addZombie(Player player) {
-        players.addItem("zombie", player);
         players.removeItem("player", player);
         players.removeItem("spectator", player);
+        players.removeItem("zombie", player);
+        players.addItem("zombie", player);
 
         //SkinGrabber.makeZombie(player);
+//        main.getServer().dispatchCommand(
+//                main.getServer().getConsoleSender(),
+//                "cmi skin zombie " + player.getName());
+
         main.getServer().dispatchCommand(
                 main.getServer().getConsoleSender(),
-                "cmi skin zombie " + player.getName());
+                "cmi glow " + player.getName() + " green");
+
+        main.getServer().dispatchCommand(
+                main.getServer().getConsoleSender(),
+                "lp user " + player.getName() + " parent set infected");
 
         updateScoreboard();
-        player.getInventory().addItem(new ItemStack(Material.DIAMOND_SWORD));
         if (started) {
             int remaining = players.getGroup("player").size();
-            if (remaining == 2)
+            if (remaining == 2) {
                 main.broadcast(MessageTools.greenAnnouncement("#v has died and is in 3rd place!", player));
-            else if (remaining == 1)
+                main.getServer().getOnlinePlayers().forEach(p -> p.sendTitle(ChatColor.RED + player.getName(), "is in 3rd place!", 10, 60, 10));
+            } else if (remaining == 1) {
                 main.broadcast(MessageTools.greenAnnouncement("#v has died and is in 2nd place!", player));
-            else if (remaining == 0) {
+                main.getServer().getOnlinePlayers().forEach(p -> p.sendTitle(ChatColor.RED + player.getName(), "is in 2nd place!", 10, 60, 10));
+            } else if (remaining == 0) {
                 main.broadcast(MessageTools.greenAnnouncement("#v has won!", player));
+                main.getServer().getOnlinePlayers().forEach(p -> p.sendTitle(ChatColor.RED + player.getName(), "is the winner!", 10, 60, 10));
                 stop();
             } else
                 main.broadcast(MessageTools.greenAnnouncement("#v has died!", player));
@@ -149,43 +168,44 @@ public class InfectionTagListener implements Listener {
             e.setCancelled(true);
             return;
         }
-
+        if (isZombie(victim))
+            e.setDamage(e.getDamage() / 2);
         if (victim.getHealth() - e.getDamage() <= 0) {
             e.setCancelled(true);
             killPlayer((victim));
         }
     }
 
-    @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent e) {
-        String text = e.getMessage();
-        Player sender = e.getPlayer();
-        e.setCancelled(true);
-
-        String pre = "";
-        if (players.isInGroup("player", sender))
-            pre += "[" + ChatColor.GREEN + "Human" + ChatColor.WHITE + "]";
-        if (players.isInGroup("zombie", sender))
-            pre += "[" + ChatColor.RED + "Infected" + ChatColor.WHITE + "]";
-        if (players.isInGroup("spectator", sender))
-            pre += "[" + ChatColor.GRAY + "Staff" + ChatColor.WHITE + "]";
-
-        pre += "<" + sender.getName() + ">";
-        final String send = pre + text;
-
-        main.getServer().getOnlinePlayers().forEach(p ->
-                p.sendMessage(send));
-    }
+//    @EventHandler
+//    public void onPlayerChat(AsyncPlayerChatEvent e) {
+//        String text = e.getMessage();
+//        Player sender = e.getPlayer();
+//        e.setCancelled(true);
+//
+//        String group = "";
+//        if (players.isInGroup("player", sender))
+//            group = "human";
+//        if (players.isInGroup("zombie", sender))
+//            group = "infected";
+//        if (players.isInGroup("spectator", sender))
+//            group = "staff";
+//        final String send = group;
+//
+//        main.getServer().getOnlinePlayers().forEach(p ->
+//                p.sendMessage(send));
+//    }
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent e) {
-        main.getServer().dispatchCommand(
-                main.getServer().getConsoleSender(),
-                "cmi skin off " + e.getPlayer().getName());
+//        main.getServer().dispatchCommand(
+//                main.getServer().getConsoleSender(),
+//                "cmi skin off " + e.getPlayer().getName());
         if (started) {
             players.removeItem("player", e.getPlayer());
             players.removeItem("zombie", e.getPlayer());
         }
+
+        e.getPlayer().setScoreboard(objective.getScoreboard());
 
         updateScoreboard();
     }
@@ -204,6 +224,7 @@ public class InfectionTagListener implements Listener {
         player.teleport(spawn);
         player.setHealth(20);
         player.getInventory().clear();
+        player.getInventory().addItem(new ItemStack(Material.DIAMOND_SWORD));
         players.removeItem("player", player);
         if (!players.isInGroup("zombie", player))
             addZombie(player);
@@ -221,8 +242,6 @@ public class InfectionTagListener implements Listener {
             }
         });
 
-
-        AirdropTimer.INSTANCE.start();
         spawn.getWorld().getEntities().forEach(e -> {
             if (e instanceof ArmorStand) {
                 e.remove();
@@ -241,6 +260,9 @@ public class InfectionTagListener implements Listener {
                 p.getInventory().clear();
                 p.setGameMode(GameMode.ADVENTURE);
                 p.setScoreboard(objective.getScoreboard());
+                main.getServer().dispatchCommand(
+                        main.getServer().getConsoleSender(),
+                        "lp user " + p.getName() + " parent set human");
             }
         });
 
@@ -251,25 +273,60 @@ public class InfectionTagListener implements Listener {
     }
 
     public void stop() {
-        AirdropTimer.INSTANCE.stop();
         started = false;
         players.clearGroups();
+        if(zTimer != null)
         if (!zTimer.isCancelled()) {
             zTimer.terminate();
         }
+
+        main.getServer().getOnlinePlayers().forEach(p -> {
+            main.getServer().dispatchCommand(
+                    main.getServer().getConsoleSender(),
+                    "mvtp " + p.getName() + " Lobby");
+            main.getServer().dispatchCommand(
+                    main.getServer().getConsoleSender(),
+                    "cmi glow " + p.getName() + " off");
+//            main.getServer().dispatchCommand(
+//                    main.getServer().getConsoleSender(),
+//                    "cmi skin off " + p.getName() +  " -s");
+        });
+    }
+
+    public void stopNoTP() {
+        started = false;
+        if (zTimer != null)
+            if (!zTimer.isCancelled()) {
+                zTimer.terminate();
+            }
+
+        main.getServer().getOnlinePlayers().forEach(p ->
+                main.getServer().dispatchCommand(
+                        main.getServer().getConsoleSender(),
+                        "cmi glow " + p.getName() + " off"));
     }
 
     public void addSpec(Player player) {
         players.removeItem("zombie", player);
         players.removeItem("player", player);
         players.addItem("spectator", player);
+        main.getServer().dispatchCommand(
+                main.getServer().getConsoleSender(),
+                "lp user " + player.getName() + " parent set staff");
         updateScoreboard();
     }
 
     public void addHuman(Player player) {
         players.removeItem("zombie", player);
         players.removeItem("spectator", player);
+        players.removeItem("player", player);
         players.addItem("player", player);
+        main.getServer().dispatchCommand(
+                main.getServer().getConsoleSender(),
+                "cmi glow " + player.getName() + " off");
+        main.getServer().dispatchCommand(
+                main.getServer().getConsoleSender(),
+                "lp user " + player.getName() + " parent set human");
         updateScoreboard();
     }
 }

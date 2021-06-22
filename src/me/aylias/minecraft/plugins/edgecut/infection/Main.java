@@ -13,7 +13,7 @@ import static me.aylias.minecraft.plugins.aptlib.ListTools.*;
 public class Main extends AbstractMain {
 
     public static Main INSTANCE;
-    AirdropTimer airdropTimer;
+//    AirdropTimer airdropTimer;
 
     @Override
     public void onEnableCallback() {
@@ -24,8 +24,8 @@ public class Main extends AbstractMain {
 
     @Override
     public List<Listener> getListeners() {
-        airdropTimer = new AirdropTimer(this, getServer().getWorld("world"));
-        return toList(new InfectionTagListener(this), airdropTimer);
+//        airdropTimer = new AirdropTimer(this, getServer().getWorld("world"));
+        return toList(new InfectionTagListener(this));
     }
 
     @Override
@@ -36,6 +36,7 @@ public class Main extends AbstractMain {
         return toMap(toPair("start", commandHandler),
                 toPair("zombie", commandHandler),
                 toPair("reset", commandHandler),
-                toPair("staff", commandHandler));
+                toPair("staff", commandHandler),
+                toPair("human", commandHandler));
     }
 }

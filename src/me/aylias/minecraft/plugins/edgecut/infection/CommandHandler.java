@@ -23,10 +23,6 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
 
-        if (command.getName().equalsIgnoreCase("endcrate")) {
-            AirdropTimer.INSTANCE.stop();
-        }
-
         if (command.getName().equalsIgnoreCase("zombie")) {
             if (args.length == 0) {
                 sender.sendMessage(MessageTools.greenAnnouncement("You need to specify a player"));
@@ -42,7 +38,7 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
 
-        if (command.getName().equalsIgnoreCase("spectator")) {
+        if (command.getName().equalsIgnoreCase("staff")) {
             if (args.length == 0) {
                 sender.sendMessage(MessageTools.greenAnnouncement("You need to specify a player"));
                 return true;
@@ -74,7 +70,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         if (command.getName().equalsIgnoreCase("start")) {
-            AirdropTimer.INSTANCE.setWorld(((Player) sender).getWorld());
+            InfectionTagListener.INSTANCE.stopNoTP();
             InfectionTagListener.INSTANCE.setWorld(((Player) sender).getWorld());
             InfectionTagListener.INSTANCE.start();
             ((Player) sender).getWorld().setDifficulty(Difficulty.PEACEFUL);
@@ -82,14 +78,13 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
 
-        if (command.getName().equalsIgnoreCase("reset")) {
-            InfectionTagListener.INSTANCE.stop();
-            AirdropTimer.INSTANCE.setWorld(((Player) sender).getWorld());
-            InfectionTagListener.INSTANCE.setWorld(((Player) sender).getWorld());
-            InfectionTagListener.INSTANCE.start();
-            sender.sendMessage(MessageTools.greenAnnouncement("Successfully reset!"));
-
-        }
+//        if (command.getName().equalsIgnoreCase("reset")) {
+//            InfectionTagListener.INSTANCE.stop();
+//            AirdropTimer.INSTANCE.setWorld(((Player) sender).getWorld());
+//            InfectionTagListener.INSTANCE.setWorld(((Player) sender).getWorld());
+//            InfectionTagListener.INSTANCE.start();
+//            sender.sendMessage(MessageTools.greenAnnouncement("Successfully reset!"));
+//        }
         return true;
     }
 }
